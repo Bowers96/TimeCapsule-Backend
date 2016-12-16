@@ -12,6 +12,7 @@ module.exports = require('lib/wiring/routes')
 
 .post('/docs', 'docs#create')
 .get('/docs', 'docs#index')
+.get('/docs/:id', 'docs#show')
 
 // users of the app have special requirements
 .post('/sign-up', 'users#signup')
