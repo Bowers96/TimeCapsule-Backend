@@ -12,10 +12,33 @@ const multerUpload = multer({ dest: '/tmp/'});
 const authenticate = require('./concerns/authenticate');
 
 const index = (req, res, next) => {
-  Doc.find()
+  console.log("inside index, req._parsedUrl.query is ", req._parsedUrl.query);
+  console.log("inside index, req.currentUser is ", req.currentUser);
+  if (req._parsedUrl.query === "restrict=true") {
+    Doc.find( {'_owner': req.currentUser._id} )
     .then(docs => res.json({ docs }))
     .catch(err => next(err));
+  } else {
+    Doc.find()
+    .then(docs => res.json({ docs }))
+    .catch(err => next(err));
+  }
+  // Doc.find()
+  //   .then(docs => res.json({ docs }))
+  //   .catch(err => next(err));
 };
+
+// def index
+//     restrict = params[:restrict]
+//
+//     @words = if restrict.blank?
+//                Word.all
+//              else
+//                base_query
+//              end
+//
+//     render json: @words
+//   end
 
 const show = (req, res, next) => {
   Doc.findById(req.params.id)
@@ -86,6 +109,6 @@ module.exports = controller({
   update,
   destroy,
 }, { before: [
-  { method: authenticate, except: ['index', 'show'] },
+  { method: authenticate, except: ['show'] },
   { method: multerUpload.single('doc[file]'), only: ['create'] },
 ], });
