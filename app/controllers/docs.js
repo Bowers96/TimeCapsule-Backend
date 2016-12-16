@@ -9,7 +9,7 @@ const s3Upload = require('../../lib/aws-s3-upload.js');
 const multer = require('multer');
 const multerUpload = multer({ dest: '/tmp/'});
 
-// const authenticate = require('./concerns/authenticate');
+const authenticate = require('./concerns/authenticate');
 
 const index = (req, res, next) => {
   Doc.find()
@@ -24,17 +24,15 @@ const show = (req, res, next) => {
 };
 
 const create = (req, res, next) => {
-  // let doc = Object.assign(req.body.doc, {
-  //   _owner: req.currentUser._id,
-  // });
   s3Upload(req.file)
     .then(function(s3Response) {
       console.log("s3Upload ran, and returned: ", s3Response);
       console.log("req.body is", req.body);
       return Doc.create({
-        title: req.body.document.title,
+        title: req.body.doc.title,
         url: s3Response.Location,
-        category: req.body.document.category,
+        category: req.body.doc.category,
+        _owner: req.currentUser._id,
       });
     })
     .then(function(doc){
@@ -46,11 +44,6 @@ const create = (req, res, next) => {
     .catch(function(error){
       next(error);
     });
-
-  // console.log("res is", res);
-  // Doc.create(doc)
-  //   .then(doc => res.json({ doc }))
-  //   .catch(err => next(err));
 };
 
 const update = (req, res, next) => {
@@ -93,5 +86,6 @@ module.exports = controller({
   update,
   destroy,
 }, { before: [
-  { method: multerUpload.single('document[file]'), only: ['create'] },
+  { method: authenticate, except: ['index', 'show'] },
+  { method: multerUpload.single('doc[file]'), only: ['create'] },
 ], });
