@@ -70,17 +70,16 @@ const create = (req, res, next) => {
 };
 
 const update = (req, res, next) => {
-  //let search = { _id: req.params.id, _owner: req.currentUser._id };
-  let search = { _id: req.params.id };
+  let search = { _id: req.params.id, _owner: req.currentUser._id };
+  //let search = { _id: req.params.id };
   Doc.findOne(search)
     .then(doc => {
       if (!doc) {
         return next();
       }
 
-      // delete req.body._owner;  // disallow owner reassignment.
-      return doc
-      .update(req.body.doc)
+      delete req.body._owner;  // disallow owner reassignment.
+      return doc.update(req.body.doc)
         .then(() => res.sendStatus(200));
     })
     .catch(err => next(err));
@@ -95,8 +94,7 @@ const destroy = (req, res, next) => {
         return next();
       }
 
-      return doc
-      .remove()
+      return doc.remove()
         .then(() => res.sendStatus(200));
     })
     .catch(err => next(err));
