@@ -54,14 +54,15 @@ const create = (req, res, next) => {
 };
 
 const update = (req, res, next) => {
-  let search = { _id: req.params.id, _owner: req.currentUser._id };
+  //let search = { _id: req.params.id, _owner: req.currentUser._id };
+  let search = { _id: req.params.id };
   Doc.findOne(search)
     .then(doc => {
       if (!doc) {
         return next();
       }
 
-      delete req.body._owner;  // disallow owner reassignment.
+      // delete req.body._owner;  // disallow owner reassignment.
       return doc
       .update(req.body.doc)
         .then(() => res.sendStatus(200));
