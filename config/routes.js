@@ -14,6 +14,7 @@ module.exports = require('lib/wiring/routes')
 .get('/docs', 'docs#index')
 .get('/docs/:id', 'docs#show')
 .patch('/docs/:id', 'docs#update')
+.delete('/docs/:id', 'docs#destroy')
 
 // users of the app have special requirements
 .post('/sign-up', 'users#signup')
