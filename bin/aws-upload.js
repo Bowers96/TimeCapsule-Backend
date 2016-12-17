@@ -32,9 +32,9 @@ let file = {
   category: process.argv[4],
 };
 
-let contentType = mime.lookup(file.originalname);
-
-file.mimetype = contentType;
+// let contentType = mime.lookup(file.originalname);
+// temp
+// file.mimetype = contentType;
 
 console.log("file looks like", file);
 
