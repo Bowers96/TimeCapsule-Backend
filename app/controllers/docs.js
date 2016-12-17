@@ -86,8 +86,8 @@ const update = (req, res, next) => {
 };
 
 const destroy = (req, res, next) => {
-  let search = { _id: req.params.id };
-  // let search = { _id: req.params.id, _owner: req.currentUser._id };
+  // let search = { _id: req.params.id };
+  let search = { _id: req.params.id, _owner: req.currentUser._id };
   Doc.findOne(search)
     .then(doc => {
       if (!doc) {
