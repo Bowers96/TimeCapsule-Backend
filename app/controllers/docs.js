@@ -3,6 +3,7 @@
 const controller = require('lib/wiring/controller');
 const models = require('app/models');
 const Doc = models.doc;
+const Category = models.category;
 
 const s3Upload = require('../../lib/aws-s3-upload.js');
 
@@ -10,6 +11,20 @@ const multer = require('multer');
 const multerUpload = multer({ dest: '/tmp/'});
 
 const authenticate = require('./concerns/authenticate');
+
+const isValidCategory = (category, resolve, reject, res) => {
+  console.log('category is ', category);
+  let search = { text: category };
+  Category.findOne(search)
+    .then(function(result) {
+      if (result) {
+        resolve(result);
+      } else {
+        reject(result);
+        return res.sendStatus(422);
+      }
+    });
+};
 
 const index = (req, res, next) => {
   console.log("inside index, req._parsedUrl.query is ", req._parsedUrl.query);
@@ -23,22 +38,7 @@ const index = (req, res, next) => {
     .then(docs => res.json({ docs }))
     .catch(err => next(err));
   }
-  // Doc.find()
-  //   .then(docs => res.json({ docs }))
-  //   .catch(err => next(err));
 };
-
-// def index
-//     restrict = params[:restrict]
-//
-//     @words = if restrict.blank?
-//                Word.all
-//              else
-//                base_query
-//              end
-//
-//     render json: @words
-//   end
 
 const show = (req, res, next) => {
   Doc.findById(req.params.id)
@@ -47,42 +47,48 @@ const show = (req, res, next) => {
 };
 
 const create = (req, res, next) => {
-  s3Upload(req.file)
-    .then(function(s3Response) {
-      console.log("s3Upload ran, and returned: ", s3Response);
-      console.log("req.body is", req.body);
-      return Doc.create({
-        title: req.body.doc.title,
-        url: s3Response.Location,
-        category: req.body.doc.category,
-        _owner: req.currentUser._id,
+  return new Promise(function(resolve, reject) {
+    return isValidCategory(req.body.doc.category, resolve, reject, res);
+  })
+  .then(function() {
+    s3Upload(req.file)
+      .then(function(s3Response) {
+        return Doc.create({
+          title: req.body.doc.title,
+          url: s3Response.Location,
+          category: req.body.doc.category,
+          _owner: req.currentUser._id
+        });
+      })
+      .then(function(doc){
+        res.json({
+          body: doc
+        });
+      })
+      .catch(function(error){
+        next(error);
       });
-    })
-    .then(function(doc){
-      console.log("inside 2nd then, doc is ", doc);
-      res.json({
-        body: doc
-      });
-    })
-    .catch(function(error){
-      next(error);
-    });
+  });
 };
 
 const update = (req, res, next) => {
-  let search = { _id: req.params.id, _owner: req.currentUser._id };
-  //let search = { _id: req.params.id };
-  Doc.findOne(search)
-    .then(doc => {
-      if (!doc) {
-        return next();
-      }
+  return new Promise(function(resolve, reject) {
+    return isValidCategory(req.body.doc.category, resolve, reject, res);
+  })
+  .then(function() {
+    let search = { _id: req.params.id, _owner: req.currentUser._id };
+    Doc.findOne(search)
+      .then(doc => {
+        if (!doc) {
+          return next();
+        }
 
-      delete req.body._owner;  // disallow owner reassignment.
-      return doc.update(req.body.doc)
-        .then(() => res.sendStatus(200));
-    })
-    .catch(err => next(err));
+        delete req.body._owner;  // disallow owner reassignment.
+        return doc.update(req.body.doc)
+          .then(() => res.sendStatus(200));
+      })
+      .catch(err => next(err));
+  });
 };
 
 const destroy = (req, res, next) => {
