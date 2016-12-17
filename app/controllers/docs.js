@@ -6,6 +6,7 @@ const Doc = models.doc;
 const Category = models.category;
 
 const s3Upload = require('../../lib/aws-s3-upload.js');
+const s3Delete = require('../../lib/aws-s3-delete.js');
 
 const multer = require('multer');
 const multerUpload = multer({ dest: '/tmp/'});
@@ -92,16 +93,20 @@ const update = (req, res, next) => {
 };
 
 const destroy = (req, res, next) => {
-  // let search = { _id: req.params.id };
   let search = { _id: req.params.id, _owner: req.currentUser._id };
+
   Doc.findOne(search)
     .then(doc => {
       if (!doc) {
         return next();
+      } else {
+        let docLocation = doc.url.split('.com/').pop();
+        s3Delete(docLocation)
+          .then(function() {
+            return doc.remove()
+              .then(() => res.sendStatus(200));
+          });
       }
-
-      return doc.remove()
-        .then(() => res.sendStatus(200));
     })
     .catch(err => next(err));
 };
