@@ -73,6 +73,8 @@ const create = (req, res, next) => {
 };
 
 const update = (req, res, next) => {
+  console.log("request is ", req);
+  // console.log("response is ", res);
   return new Promise(function(resolve, reject) {
     return isValidCategory(req.body.doc.category, resolve, reject, res);
   })
