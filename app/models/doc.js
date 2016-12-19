@@ -22,6 +22,13 @@ const docSchema = new mongoose.Schema({
   },
 }, {
   timestamps: true,
+  toJSON: {
+    virtuals: true
+  },
+});
+
+docSchema.virtual('filterDate').get(function filterDate() {
+  return this.createdAt.toISOString().split('T')[0];
 });
 
 const Doc = mongoose.model('Doc', docSchema);
