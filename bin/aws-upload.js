@@ -8,23 +8,6 @@ const Doc = require('../app/models/doc');
 
 const mime = require('mime');
 
-// Old `file` object =>
-// let file = {
-//   path: process.argv[2],
-//   title: process.argv[3]
-// };
-
-// req.file looks like this:
-// { fieldname: 'image[file]',
-//   originalname: 'payne.jpg',
-//   encoding: '7bit',
-//   mimetype: 'image/jpeg',
-//   destination: '/tmp/',
-//   filename: '5e215bd26b83220a4c75f5f9d1f7c5cd',
-//   path: '/tmp/5e215bd26b83220a4c75f5f9d1f7c5cd',
-//   size: 26116 }
-
-// new `file` object
 let file = {
   path: process.argv[2],
   originalname: process.argv[2],
