@@ -9,10 +9,10 @@ An API to store document metadata and allow users to upload/download files to AW
 ## Links
 
 The front-end is deployed here:<br>
-TBD
+https://awesome-dream-org.github.io/TimeCapsule-Frontend
 
 The back-end is deployed here:<br>
-TBD
+https://sheltered-taiga-22202.herokuapp.com
 
 The front-end repo can be found here:<br>
 https://github.com/awesome-dream-org/TimeCapsule-Frontend
